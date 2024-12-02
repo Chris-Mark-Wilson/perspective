@@ -3,6 +3,7 @@
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
+
 }
 
 
@@ -48,4 +49,19 @@ canvas{
   /* border:1px solid green; */
   cursor:crosshair;
   border:1px solid white;
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+  }
+  a:hover {
+    color: #747bff;
+  }
+  button {
+    background-color: #f9f9f9;
+  }
+  .container{
+    background-color: darkgray;
+  }
 }

@@ -11,6 +11,7 @@ function App() {
   const [top,setTop]=useState(window.screen.availHeight/2)
   const [left,setLeft]=useState(window.screen.availHeight/2)
   const [doneSetPosition,setDoneSetPosition]=useState(false)
+  const [isDragging,setIsDragging]=useState(false)
   const imgRef = useRef(null);
   const containerRef=useRef(null)
   const canvasRef=useRef(null)
@@ -44,13 +45,20 @@ function App() {
   },[]);
 
   const handleClick=useCallback((e)=>{
+    if (isDragging) {
+      e.preventDefault();
+      e.stopPropagation();
+      setIsDragging(false);
+      return;
+    }
     console.log('clicked on =>',e.target)
-  },[])
+  },[isDragging])
 
   const handleMousedown=useCallback((e)=>{
     
       
       setDrag(true)
+      setIsDragging(false)
       // console.log('drag=true')
   
   },[])
@@ -67,6 +75,7 @@ function App() {
       // console.log('movement',e.movementX,e.movementY)
       setTop((prev)=>prev+=e.movementY)
      setLeft((prev)=>prev+=e.movementX)
+     setIsDragging(true)
     }
   },[drag,containerRef.current])
 
@@ -99,9 +108,10 @@ useEffect(()=>{
   //initial setup
   document.addEventListener('mousewheel',handleWheel)
   window.addEventListener('resize', updateImageSize); // Update on resize
-  document.addEventListener('click',handleClick)
+
   if(canvasRef.current){
   canvasRef.current.addEventListener('mousedown',handleMousedown)
+  canvasRef.current.addEventListener('click',handleClick)
   }
   
   document.addEventListener('mouseup',handleMouseup)
@@ -113,6 +123,7 @@ useEffect(()=>{
     document.removeEventListener('click',handleClick)
     if (canvasRef.current){
     canvasRef.current.removeEventListener('mousedown',handleMousedown)
+    canvasRef.current.removeEventListener('click',handleClick)
     }
     document.removeEventListener('mouseup', handleMouseup);
     document.removeEventListener('mousemove', handleMousemove);
