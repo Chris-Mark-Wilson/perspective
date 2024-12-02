@@ -44,25 +44,25 @@ function App() {
   },[]);
 
   const handleClick=useCallback((e)=>{
-console.log('click')
+    console.log('clicked on =>',e.target)
   },[])
 
   const handleMousedown=useCallback((e)=>{
     
       
       setDrag(true)
-      console.log('drag=true')
+      // console.log('drag=true')
   
   },[])
 
   const handleMouseup=useCallback((e)=>{
     setDrag(false)
-    console.log('drag=false')
+    // console.log('drag=false')
   },[])
 
   const handleMousemove=useCallback((e)=>{
     if(drag){
-      // console.log('moveing',drag)
+      // console.log('moving',drag)
       // console.log(e,e.clientX,e.clientY)
       // console.log('movement',e.movementX,e.movementY)
       setTop((prev)=>prev+=e.movementY)
@@ -74,11 +74,11 @@ console.log('click')
 //adjust initial position by width/2 and height/2
   useEffect(()=>{
     if(!doneSetPosition){
-      console.log('here',imageSize)
+   
   if(imageSize.width>0 && imageSize.height>0 && canvasRef.current){
 const width=imageSize.width;
 const height=imageSize.height;
-console.log(width,height)
+
     setTop((prev)=>{
       const newTop=prev-(height/2);
     return newTop
@@ -93,7 +93,7 @@ console.log(width,height)
    
    
   }
-    },[imageSize])
+    },[imageSize,canvasRef])
 
 useEffect(()=>{
   //initial setup
@@ -154,7 +154,7 @@ useEffect(() => {
     <img ref ={imgRef} src='/images/zx81Desk.png' />
   </div>
 
-  {imgRef.current && 
+  {imageSize.height>0 && imageSize.width>0 && 
   <canvas ref ={canvasRef} style={{width:imageSize.width,height:imageSize.height,top:imageSize.y,left:imageSize.x}}>
     
   </canvas>
