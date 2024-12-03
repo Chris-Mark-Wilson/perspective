@@ -142,6 +142,19 @@ useEffect(() => {
     updateImageSize();
   }
 }, [scale]);
+useEffect(()=>{
+if(canvasRef.current){
+  const ctx=canvasRef.current.getContext('2d')
+  draw(ctx)
+}
+},[canvasRef.current])
+const draw=(ctx)=>{
+  ctx.beginPath();
+  ctx.moveTo(75, 50);
+  ctx.lineTo(100, 75);
+  ctx.lineTo(100, 25);
+  ctx.stroke()
+}
 
 
   return (

@@ -27,6 +27,9 @@
   margin:0 10px;
   text-align:left;
 }
+.info p{
+  margin:0;
+}
 .container{
   position:absolute;
 
@@ -45,7 +48,7 @@ img{
 canvas{
   position:absolute;
   /* background:linear-gradient(red,green); */
-  opacity:0.3;
+  opacity:0.5;
   /* border:1px solid green; */
   cursor:crosshair;
   border:1px solid white;
