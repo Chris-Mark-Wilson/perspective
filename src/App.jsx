@@ -10,7 +10,7 @@ function App() {
   const [drag,setDrag]=useState(false)
   const [top,setTop]=useState(100)
   const [left,setLeft]=useState(0)
-  const [doneSetPosition,setDoneSetPosition]=useState(false)
+
   const [isDragging,setIsDragging]=useState(false)
   const [mode,setMode]=useState('position')
   const controlRef=useRef(null)
@@ -27,21 +27,15 @@ function App() {
       
       setContainerSize({ width,height,x,y });
       // console.log(imgRef.current)
-      // setTop(height/2)
-      // setLeft(width/2)
+      // setTop(y)
+      // setLeft(x)
     }
   },[]);
   useEffect(()=>{
 updatecontainerSize()
   },[top,left])
   
-  // const updateContainerSize=useCallback(()=>{
-  //   console.log('here')
-  //   // if(containerRef.current){
-  //   //   console.log('updating container size')
-  //   //   containerRef.current.style.width='100%';
-  //   // }
-  // },[containerRef.current])
+
   
   const handleWheel= useCallback((e)=>{
     // console.log(e,e.target,e.deltaY)
@@ -56,6 +50,7 @@ updatecontainerSize()
  updatecontainerSize();
     }
   },[]);
+
   useEffect(() => {
     //resize container containing image, therefore resize image
     if (imgRef.current) {
@@ -71,8 +66,15 @@ updatecontainerSize()
       setIsDragging(false);
       return;
     }
-    console.log('clicked on =>',e.target)
+   reset()
   },[isDragging])
+
+    const reset=useCallback(()=>{
+      setTop(100);
+      setLeft(0)
+      setScale(1)
+      updatecontainerSize()
+    },[])
 
   const handleMousedown=useCallback((e)=>{
     
@@ -113,28 +115,7 @@ updatecontainerSize()
   },[drag,containerRef.current,controlRef.current])
 
 
-// adjust initial position by width/2 and height/2
-//   useEffect(()=>{
-//     if(!doneSetPosition){
-   
-//   if(containerSize.width>0 && containerSize.height>0 && canvasRef.current){
-// const width=containerSize.width;
-// const height=containerSize.height
-//     setTop((prev)=>{
-//       const newTop=prev-(height/2);
-//     return newTop
-//     })
-//     setLeft((prev)=>{
-//       const newLeft=prev-(width/2);
-//     return newLeft
-//     })
-//     setDoneSetPosition(true)
-//     updatecontainerSize()
-//   }
-   
-   
-//   }
-//     },[containerSize,canvasRef])
+
 
 useEffect(()=>{
   //initial setup
@@ -199,6 +180,7 @@ const draw=(ctx)=>{
 
     <button onClick={()=>setMode('position')} style={{backgroundColor:mode==='position'?'red':'black'}}>Position</button>
     <button onClick={()=>setMode('adjust')} style={{backgroundColor:mode==='adjust'?'red':'black'}}>Adjust</button>
+    <button onClick={reset} style={{backgroundColor:'green'}}>reset</button>
   </div>
       <div className='info'>
         <p>Width:{containerSize.width.toFixed(2)}</p>
