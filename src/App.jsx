@@ -149,11 +149,17 @@ if(canvasRef.current){
 }
 },[canvasRef.current])
 const draw=(ctx)=>{
+  ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height); // Clear the canvas
+  ctx.globalCompositeOperation = 'difference'; // Set the composite operation to 'difference'
+  ctx.strokeStyle = 'white'; // Set the stroke color to white
+
   ctx.beginPath();
-  ctx.moveTo(75, 50);
-  ctx.lineTo(100, 75);
-  ctx.lineTo(100, 25);
-  ctx.stroke()
+  ctx.moveTo(50, 50);
+  ctx.lineTo(100, 50);
+  ctx.lineTo(100, 100);
+  ctx.lineTo(50,100);
+  ctx.closePath();
+  ctx.stroke();
 }
 
 

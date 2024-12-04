@@ -68,3 +68,8 @@ canvas{
     background-color: darkgray;
   }
 }
+@media screan and (max-width: 600px){
+  .container{
+    width:100%;
+  }
+}
