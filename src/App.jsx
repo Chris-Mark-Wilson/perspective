@@ -17,22 +17,17 @@ function App() {
   const imgRef = useRef(null);
   const containerRef=useRef(null)
   const canvasRef=useRef(null)
-  // console.log(Image())
+
   
   const updatecontainerSize = useCallback(() => {
-    console.log('updating container size');
     if (imgRef.current ) {
       const { width, height,x,y } = imgRef.current.getBoundingClientRect();
-      // console.log(imgRef.current.getBoundingClientRect())
-      
       setContainerSize({ width,height,x,y });
-      // console.log(imgRef.current)
-      // setTop(y)
-      // setLeft(x)
     }
   },[]);
+
   useEffect(()=>{
-updatecontainerSize()
+    updatecontainerSize()
   },[top,left])
   
 
@@ -40,14 +35,12 @@ updatecontainerSize()
   const handleWheel= useCallback((e)=>{
     // console.log(e,e.target,e.deltaY)
     if(containerRef.current && e.target.localName==='canvas'){
-  // console.log(containerRef.current)
-  if(e.deltaY<0){
-  setScale((prevScale) => Math.min(prevScale + 0.1, 3)); // Scale up, max scale 3
-  } else {
-  setScale((prevScale) => Math.max(prevScale - 0.1, 0.5)); // Scale down, min scale 0.5
-       
-  }
- updatecontainerSize();
+      if(e.deltaY<0){
+      setScale((prevScale) => Math.min(prevScale + 0.1, 3)); // Scale up, max scale 3
+      } else {
+      setScale((prevScale) => Math.max(prevScale - 0.1, 0.3)); // Scale down, min scale 0.5
+      }
+      updatecontainerSize();
     }
   },[]);
 
@@ -77,12 +70,9 @@ updatecontainerSize()
     },[])
 
   const handleMousedown=useCallback((e)=>{
-    
-      
       setDrag(true)
       setIsDragging(false)
-      // console.log('drag=true')
-  
+      
   },[])
 
   const handleMouseup=useCallback((e)=>{
@@ -92,29 +82,11 @@ updatecontainerSize()
 
   const handleMousemove=useCallback((e)=>{
     if(drag && mode==='position'){
-      // console.log('moving',drag)
-      // console.log(e,e.clientX,e.clientY)
-      // console.log('movement',e.movementX,e.movementY)
-      setTop((prev)=>{
-        const controlHeight=controlRef.current.getBoundingClientRect().height
-        const yLimit=document.body.getBoundingClientRect().height;
-      const containerHeight=containerRef.current.getBoundingClientRect().height*scale;
-
-      console.log('top',prev)
-
-    
-     return prev+=e.movementY
-    })
-     setLeft((prev)=>{
-      const xLimit=document.body.getBoundingClientRect().width;
-      const containerWidth=containerRef.current.getBoundingClientRect().width
-      // console.log('left',prev,left)
-      return prev+=e.movementX})
-     setIsDragging(true)
+      setTop((prev)=>prev+=e.movementY)
+      setLeft((prev)=>prev+=e.movementX)
+      setIsDragging(true)
     }
   },[drag,containerRef.current,controlRef.current])
-
-
 
 
 useEffect(()=>{
@@ -142,13 +114,6 @@ useEffect(()=>{
     document.removeEventListener('mousemove', handleMousemove);
 }
 },[drag,canvasRef.current,containerRef.current])
-
-// useEffect(()=>{
-//   //handle image resizing or reposition
-//   updatecontainerSize(); 
-// },[containerRef.current])
-
-
 
 
 useEffect(()=>{
@@ -180,7 +145,7 @@ const draw=(ctx)=>{
 
     <button onClick={()=>setMode('position')} style={{backgroundColor:mode==='position'?'red':'black'}}>Position</button>
     <button onClick={()=>setMode('adjust')} style={{backgroundColor:mode==='adjust'?'red':'black'}}>Adjust</button>
-    <button onClick={reset} style={{backgroundColor:'green'}}>reset</button>
+    <button onClick={reset} style={{backgroundColor:'green',fontSize:'0.8rem'}}>reset scale</button>
   </div>
       <div className='info'>
         <p>Width:{containerSize.width.toFixed(2)}</p>
