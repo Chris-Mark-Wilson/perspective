@@ -10,6 +10,7 @@ function App() {
   const [drag,setDrag]=useState(false)
   const [top,setTop]=useState(100)
   const [left,setLeft]=useState(0)
+  const [polygonPosition,setPolygonPosition]=useState({tl:{x:50,y:50},tr:{x:200,y:50},bl:{x:50,y:200},br:{x:200,y:200}})
 
   const [isDragging,setIsDragging]=useState(false)
   const [mode,setMode]=useState('position')
@@ -23,6 +24,10 @@ function App() {
     if (imgRef.current ) {
       const { width, height,x,y } = imgRef.current.getBoundingClientRect();
       setContainerSize({ width,height,x,y });
+      // if(top!=y && left!=x){
+      // setTop(y);
+      // setLeft(x);
+      // }
     }
   },[]);
 
@@ -59,7 +64,10 @@ function App() {
       setIsDragging(false);
       return;
     }
-   reset()
+    if(mode==='position') reset()
+    if(mode==='set'){
+
+    }
   },[isDragging])
 
     const reset=useCallback(()=>{
@@ -80,14 +88,66 @@ function App() {
     // console.log('drag=false')
   },[])
 
+  //Drag image or div
   const handleMousemove=useCallback((e)=>{
     if(drag && mode==='position'){
+       //move div
+      // using containerSize NOT top and left because react not updating
+      const x=(e.clientX-containerSize.x);
+      const y=(e.clientY-containerSize.y);
+      console.log('x,y=>',x,y)
+      console.log('top,left=>',top,left)
+      if(isPointInPolygon({x,y},polygonPosition)){
+        console.log('in polygon')
+        //move polygon
+        setPolygonPosition((prev)=>{
+          console.log('prev',{...prev})
+         const {tl,tr,bl,br}=prev
+         const newPosition={tl,tr,bl,br}
+         
+          console.log('oldPosition',tl,tr,bl,br)
+          for(const position in newPosition){
+            console.log('position',position)
+            newPosition[position].x+=e.movementX;
+            newPosition[position].y+=e.movementY;
+          }
+          console.log('newPosition',newPosition)
+          return newPosition
+        })
+        const ctx=canvasRef.current.getContext('2d');
+        draw(ctx)
+        setIsDragging(true)
+      }else {
+        //move entire image
       setTop((prev)=>prev+=e.movementY)
       setLeft((prev)=>prev+=e.movementX)
+      updatecontainerSize()
       setIsDragging(true)
+      }
+    } else if(drag && mode==='set'){
+     console.log('dragging in set path')
+     setIsDragging(true)
     }
   },[drag,containerRef.current,controlRef.current])
 
+  const isPointInPolygon = (point, polygon) => {
+    const { x, y } = point;
+    const { tl, tr, bl, br } = polygon;
+  
+    const vertices = [tl, tr, br, bl];
+    let isInside = false;
+  
+    for (let i = 0, j = vertices.length - 1; i < vertices.length; j = i++) {
+      const xi = vertices[i].x, yi = vertices[i].y;
+      const xj = vertices[j].x, yj = vertices[j].y;
+  
+      const intersect = ((yi > y) !== (yj > y)) &&
+                        (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+      if (intersect) isInside = !isInside;
+    }
+  
+    return isInside;
+  };
 
 useEffect(()=>{
   //initial setup
@@ -118,23 +178,35 @@ useEffect(()=>{
 
 useEffect(()=>{
 if(canvasRef.current){
+  const canvas = canvasRef.current;
   const ctx=canvasRef.current.getContext('2d')
+
+  const scale = window.devicePixelRatio; // Get the device pixel ratio
+  canvas.width = canvas.offsetWidth * scale;
+  canvas.height = canvas.offsetHeight * scale;
+  ctx.scale(scale, scale); // Scale the context
+
   draw(ctx)
 }
-},[canvasRef.current])
+},[canvasRef.current,])
 
 const draw=(ctx)=>{
   ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height); // Clear the canvas
-  ctx.globalCompositeOperation = 'difference'; // Set the composite operation to 'difference'
-  ctx.strokeStyle = 'white'; // Set the stroke color to white
-
+  // ctx.globalCompositeOperation = 'difference'; // Set the composite operation to 'difference'
+  const {tl,tr,bl,br}=polygonPosition
+  ctx.strokeStyle = 'red'; 
+  ctx.lineWidth=1;
+  // ctx.setLineDash([1,1])
   ctx.beginPath();
-  ctx.moveTo(50, 50);
-  ctx.lineTo(100, 50);
-  ctx.lineTo(100, 100);
-  ctx.lineTo(50,100);
+  // let region = new Path2D();
+  ctx.moveTo(tl.x,tl.y);
+  ctx.lineTo(tr.x,tr.y);
+  ctx.lineTo(br.x,br.y);
+  ctx.lineTo(bl.x,bl.y);
   ctx.closePath();
   ctx.stroke();
+  ctx.fillStyle='green'
+  ctx.fill()
 }
 
 
@@ -144,7 +216,7 @@ const draw=(ctx)=>{
   <div className='control-buttons'>
 
     <button onClick={()=>setMode('position')} style={{backgroundColor:mode==='position'?'red':'black'}}>Position</button>
-    <button onClick={()=>setMode('adjust')} style={{backgroundColor:mode==='adjust'?'red':'black'}}>Adjust</button>
+    <button onClick={()=>setMode('set')} style={{backgroundColor:mode==='set'?'red':'black'}}>Set path</button>
     <button onClick={reset} style={{backgroundColor:'green',fontSize:'0.8rem'}}>reset scale</button>
   </div>
       <div className='info'>
