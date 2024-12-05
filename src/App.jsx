@@ -66,7 +66,7 @@ function App() {
     }
     if(mode==='position') reset()
     if(mode==='set'){
-
+      console.log(e.layerX,e.layerY)
     }
   },[isDragging])
 
@@ -88,15 +88,19 @@ function App() {
     // console.log('drag=false')
   },[])
 
+ 
+
   //Drag image or div
   const handleMousemove=useCallback((e)=>{
+   
+    const x=(e.clientX-containerSize.x);
+    const y=(e.clientY-containerSize.y);
     if(drag && mode==='position'){
        //move div
       // using containerSize NOT top and left because react not updating
-      const x=(e.clientX-containerSize.x);
-      const y=(e.clientY-containerSize.y);
       console.log('x,y=>',x,y)
       console.log('top,left=>',top,left)
+     
       if(isPointInPolygon({x,y},polygonPosition)){
         console.log('in polygon')
         //move polygon
@@ -127,9 +131,33 @@ function App() {
       }
     } else if(drag && mode==='set'){
      console.log('dragging in set path')
-     setIsDragging(true)
+     console.log(x,y)
+     for(const corner in polygonPosition){
+
+      console.log('checking',corner,polygonPosition[corner].x,polygonPosition[corner].y)
+      
+      const position={tl:{x:polygonPosition[corner].x-10,y:polygonPosition[corner].y-10},tr:{x:polygonPosition[corner].x+10,y:polygonPosition[corner].y-10},bl:{x:polygonPosition[corner].x-10,y:polygonPosition[corner].y+10},br:{x:polygonPosition[corner].x+10,y:polygonPosition[corner].y+10}}
+
+      if(isPointInPolygon({x,y},position)){
+       console.log('dragging handle',corner)
+        setPolygonPosition((prev)=>{
+          console.log(corner,prev)
+          console.log(e)
+          let newPosition={...prev}
+          newPosition[corner].x=e.layerX;
+          newPosition[corner].y=e.layerY;
+          return newPosition
+        })
+        const ctx=canvasRef.current.getContext('2d');
+        draw(ctx)
+        updatecontainerSize()
+        setIsDragging(true)
+        
+      }
+      
     }
-  },[drag,containerRef.current,controlRef.current])
+    }
+  },[drag,containerRef.current,controlRef.current,polygonPosition])
 
   const isPointInPolygon = (point, polygon) => {
     const { x, y } = point;
@@ -149,6 +177,7 @@ function App() {
   
     return isInside;
   };
+
 
 useEffect(()=>{
   //initial setup
@@ -194,6 +223,8 @@ if(canvasRef.current){
 const drawHandles=(ctx)=>{
   const {tl,tr,bl,br}=polygonPosition
   for (const corner in polygonPosition){
+    // ctx.globalCompositeOperation = 'difference'; 
+    ctx.strokeStyle='blue'
     ctx.beginPath()
     ctx.moveTo(polygonPosition[corner].x-10,polygonPosition[corner].y-10)
     ctx.lineTo(polygonPosition[corner].x+10,polygonPosition[corner].y-10)
