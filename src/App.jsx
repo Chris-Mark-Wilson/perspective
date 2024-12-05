@@ -106,16 +106,17 @@ function App() {
          const newPosition={tl,tr,bl,br}
          
           console.log('oldPosition',tl,tr,bl,br)
-          for(const position in newPosition){
-            console.log('position',position)
-            newPosition[position].x+=e.movementX;
-            newPosition[position].y+=e.movementY;
+          for(const corner in newPosition){
+            console.log('position',corner)
+            newPosition[corner].x+=e.movementX/2;
+            newPosition[corner].y+=e.movementY/2;
           }
           console.log('newPosition',newPosition)
           return newPosition
         })
         const ctx=canvasRef.current.getContext('2d');
         draw(ctx)
+        updatecontainerSize()
         setIsDragging(true)
       }else {
         //move entire image
@@ -190,6 +191,18 @@ if(canvasRef.current){
 }
 },[canvasRef.current,])
 
+const drawHandles=(ctx)=>{
+  const {tl,tr,bl,br}=polygonPosition
+  for (const corner in polygonPosition){
+    ctx.beginPath()
+    ctx.moveTo(polygonPosition[corner].x-10,polygonPosition[corner].y-10)
+    ctx.lineTo(polygonPosition[corner].x+10,polygonPosition[corner].y-10)
+    ctx.lineTo(polygonPosition[corner].x+10,polygonPosition[corner].y+10)
+    ctx.lineTo(polygonPosition[corner].x-10,polygonPosition[corner].y+10)
+    ctx.closePath();
+    ctx.stroke();
+  }
+}
 const draw=(ctx)=>{
   ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height); // Clear the canvas
   // ctx.globalCompositeOperation = 'difference'; // Set the composite operation to 'difference'
@@ -207,6 +220,7 @@ const draw=(ctx)=>{
   ctx.stroke();
   ctx.fillStyle='green'
   ctx.fill()
+  drawHandles(ctx)
 }
 
 
